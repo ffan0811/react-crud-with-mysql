@@ -39,14 +39,14 @@ app.get('/posts', (req, res) => {
 	});
 });
 
-app.get('/posts/add', (req, res) => {
-	const { title, content } = req.query;
+app.post('/posts/add', (req, res) => {
+	const { title, content } = req.body;
 	const INSERT_POST_QUERY = `INSERT INTO posts (title, content) VALUES('${title}', '${content}')`;
 	db.query(INSERT_POST_QUERY, (err, results) => {
 		if(err) {
 			return res.send(err)
 		}else {
-			return res.send('successfully added post');
+			return res.send(results);
 		}
 	});
 });

@@ -32,11 +32,26 @@ class PostForm extends Component {
 	addPost = (e) => {
 		e.preventDefault();
 	    const { post } = this.state;
+	    var data = {
+	    	title: post.title,
+	    	content: post.content
+	    };
+	    console.log(data);
 	    try {
-	    	axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
+	    	// axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
+	    	console.log("asdf");
+	    	axios.post('http://localhost:4000/posts/add', {
+	    		body: data
+	    	}).then(res => {
+	    		console.log(res);
+	    		res.json();
+	    	}).then(data => {
+	    		console.log(data)
+	    	})
 	    }
 	    catch(err) {
-	      console.error(err)
+	    	console.log("asdfaa");
+	      console.error(error)
 	    }
 	  }
 
@@ -46,7 +61,6 @@ class PostForm extends Component {
 			<div>
 				<h1>Create Post</h1>
 				<form onSubmit = {this.addPost}>
-
 					<input
 			            value={post.title}
 			            onChange={e => this.setState({ post: { ...post, title: e.target.value}})}
