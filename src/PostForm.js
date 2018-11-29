@@ -38,19 +38,16 @@ class PostForm extends Component {
 	    };
 	    console.log(data);
 	    try {
-	    	// axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
-	    	console.log("asdf");
-	    	axios.post('http://localhost:4000/posts/add', {
-	    		body: data
-	    	}).then(res => {
-	    		console.log(res);
-	    		res.json();
-	    	}).then(data => {
-	    		console.log(data)
-	    	})
+	    	axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
+	    	// axios.post('http://localhost:4000/posts/add', {
+	    	// 	body: data
+	    	// }).then(res => {
+	    	// 	console.log(res);
+	    	// }).then(data => {
+	    	// 	console.log(data)
+	    	// })
 	    }
 	    catch(err) {
-	    	console.log("asdfaa");
 	      	console.error(err)
 	    }
 	  }

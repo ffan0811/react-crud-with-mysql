@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
+// const { check, validationResult } = require('express-validator/check');
 
 const app = express();
 
@@ -33,14 +34,21 @@ app.get('/posts', (req, res) => {
 			return res.send(err)
 		}else {
 			return res.json({
-				data: results
+				results: results
 			})
 		}
 	});
 });
 
-app.post('/posts/add', (req, res) => {
-	const { title, content } = req.body;
+app.get('/posts/add', (req, res) => {
+	const { title, content } = req.query;
+
+	if(!title || !content){
+		return res.status(400).json({
+			status: false
+		})
+	}
+
 	const INSERT_POST_QUERY = `INSERT INTO posts (title, content) VALUES('${title}', '${content}')`;
 	db.query(INSERT_POST_QUERY, (err, results) => {
 		if(err) {

@@ -19,11 +19,11 @@ class AllPost extends Component {
 
 		try {
 			axios.get('http://localhost:4000/posts')
-			// .then(res => console.log(res))
+			// .then(({data}) => console.log(data))
+			.then(({data}) => this.setState({ posts: data.results}))
 			// .then(({ data }) => {
 		 //      console.log(data.data )
 		 //    })
-			.then(({data}) => this.setState({ posts: data.data}))
 		}
 		catch(err) {
 			console.error(err)
