@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 // 	});
 // })
 
-app.get('/all', (req, res) => {
+app.get('/alll', (req, res) => {
 	connection.query(SELECT_ALL_PRODUCTS_QUERTY, (err, results) => {
 		if(err) {
 			return res.send(err)
@@ -50,6 +50,18 @@ app.get('/all', (req, res) => {
 		}
 	});
 });
+
+app.get('/posts/add', (req, res) => {
+	const { title, content } = req.query;
+	const INSERT_POST_QUERY = `INSERT INTO posts (title, content) VALUES('${title}', '${content}')`;
+	connection.query(INSERT_POST_QUERY, (err, results) => {
+		if(err) {
+			return res.send(err)
+		}else {
+			return res.send('successfully added post');
+		}
+	});
+})
 
 app.listen(4000, () => {
 	console.log(`Posts server listening on port 4000`)

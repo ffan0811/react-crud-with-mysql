@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
-
+import axios from 'axios';
 import Post from './Post';
 
 import EditComponent from './EditComponent';
@@ -15,15 +15,15 @@ class AllPost extends Component {
 		this.getPosts();
 	}
 
-	getPosts = _ => {
+	getPosts = () => {
 
 		try {
-			fetch('http://localhost:4000/all')
-			.then(res => res.json())
+			axios.get('http://localhost:4000/alll')
+			// .then(res => console.log(res))
 			// .then(({ data }) => {
-		 //      console.log(data )
+		 //      console.log(data.data )
 		 //    })
-			.then(res => this.setState({ posts: res.data}))
+			.then(({data}) => this.setState({ posts: data.data}))
 		}
 		catch(err) {
 			console.error(err)
@@ -36,11 +36,6 @@ class AllPost extends Component {
 		return(
 			<div>
 				<h1>All Posts</h1>
-				{/*{this.props.posts.map((post) => (
-									<div key={post.id}>
-										{post.editing ? <EditComponent post={post} key={post.id} /> : <Post key={post.id} post={post} />}
-									</div>
-								))}*/}
 
 				{posts.map((post) => {
 					return <div key={post.post_id}><Post post={post}/></div>

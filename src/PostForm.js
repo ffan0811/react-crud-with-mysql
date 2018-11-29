@@ -1,34 +1,63 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
+import axios from 'axios';
 
 class PostForm extends Component {
 
-	handleSubmit = (e) => {
-		e.preventDefault();
-		const title = this.getTitle.value;
-		const message = this.getMessage.value;
-		const data = {
-			id: new Date(),
-			title,
-			message,
-			editing: false
+	// handleSubmit = (e) => {
+	// 	e.preventDefault();
+	// 	const title = this.getTitle.value;
+	// 	const message = this.getMessage.value;
+	// 	const data = {
+	// 		id: new Date(),
+	// 		title,
+	// 		message,
+	// 		editing: false
+	// 	}
+	// 	this.props.dispatch({
+	// 		type:'ADD_POST',
+	// 		data
+	// 	});
+	// 	this.getTitle.value = '';
+	// 	this.getMessage.value = '';
+	// }
+
+	state = {
+		post: {
+			title: '타이틀임',
+			content: '내용임'
 		}
-		this.props.dispatch({
-			type:'ADD_POST',
-			data
-		});
-		this.getTitle.value = '';
-		this.getMessage.value = '';
 	}
 
+	addPost = (e) => {
+		e.preventDefault();
+	    const { post } = this.state;
+	    try {
+	    	axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
+	    }
+	    catch(err) {
+	      console.error(err)
+	    }
+	  }
+
 	render(){
+		const { post } = this.state;
 		return(
 			<div>
 				<h1>Create Post</h1>
-				<form onSubmit = {this.handleSubmit}>
-					<input required type="text" ref={(input)=>this.getTitle = input} placeholder="Enter Post Title" />
+				<form onSubmit = {this.addPost}>
+
+					<input
+			            value={post.title}
+			            onChange={e => this.setState({ post: { ...post, title: e.target.value}})}
+			          />
 					<br/><br/>
-					<textarea required rows="5" ref={(input)=>this.getMessage = input} cols="28" placeholder="Enter Post" />
+
+			          <textarea
+			            value={post.content}
+			            onChange={e => this.setState({ post: { ...post, content: e.target.value}})}
+			          />
+
 					<br/><br/>
 					<button>Post</button>
 				</form>
