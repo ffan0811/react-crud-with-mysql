@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 // 	});
 // })
 
-app.get('/alll', (req, res) => {
+app.get('/posts', (req, res) => {
 	connection.query(SELECT_ALL_PRODUCTS_QUERTY, (err, results) => {
 		if(err) {
 			return res.send(err)
@@ -61,7 +61,9 @@ app.get('/posts/add', (req, res) => {
 			return res.send('successfully added post');
 		}
 	});
-})
+});
+
+app.delete('')
 
 app.listen(4000, () => {
 	console.log(`Posts server listening on port 4000`)

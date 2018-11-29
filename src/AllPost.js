@@ -18,7 +18,7 @@ class AllPost extends Component {
 	getPosts = () => {
 
 		try {
-			axios.get('http://localhost:4000/alll')
+			axios.get('http://localhost:4000/posts')
 			// .then(res => console.log(res))
 			// .then(({ data }) => {
 		 //      console.log(data.data )
