@@ -51,7 +51,7 @@ class PostForm extends Component {
 	    }
 	    catch(err) {
 	    	console.log("asdfaa");
-	      console.error(error)
+	      	console.error(err)
 	    }
 	  }
 

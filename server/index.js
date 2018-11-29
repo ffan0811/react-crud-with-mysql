@@ -51,6 +51,18 @@ app.post('/posts/add', (req, res) => {
 	});
 });
 
+app.post('/posts/delete', (req, res) => {
+	const { post_id } = req.body;
+	const DELETE_POST_QUERY = `DELETE from posts where post_id=${post_id}`;
+	db.query(DELETE_POST_QUERY, (err, results) => {
+		if(err) {
+			return res.send(err);
+		}else {
+			return res.sond(results);
+		}
+	})
+})
+
 
 app.listen(4000, () => {
 	console.log(`Posts server listening on port 4000`)

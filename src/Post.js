@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import { connect } from 'react-redux';
 
 class Post extends Component {
 
-	handleDelete = () => {
-		console.log('delete');
+	handleDelete = (post) => {
+		// let data  = {
+		// 	post_id : post.post_id
+		// }
+		// console.log(data);
+
+		// axios.post('/posts/delete', {
+		// 	body: data
+		// }).then(res => {
+		// 	return res.json();
+		// })
 	}
 
 	render(){
