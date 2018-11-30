@@ -5,6 +5,9 @@ const cors = require('cors');
 
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+
 const SELECT_ALL_PRODUCTS_QUERTY = 'SELECT * FROM posts';
 
 const db = mysql.createConnection({
@@ -40,8 +43,8 @@ app.get('/posts', (req, res) => {
 	});
 });
 
-app.get('/posts/add', (req, res) => {
-	const { title, content } = req.query;
+app.post('/posts/add', (req, res) => {
+	const { title, content } = req.body;
 
 	if(!title || !content){
 		return res.status(400).json({
@@ -59,8 +62,9 @@ app.get('/posts/add', (req, res) => {
 	});
 });
 
-app.post('/posts/delete', (req, res) => {
-	const { post_id } = req.body;
+app.delete('/posts/delete', (req, res) => {
+	// const { post_id } = req.body;
+	console.log(req.body);
 	const DELETE_POST_QUERY = `DELETE from posts where post_id=${post_id}`;
 	db.query(DELETE_POST_QUERY, (err, results) => {
 		if(err) {

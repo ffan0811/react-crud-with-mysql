@@ -28,7 +28,7 @@ class AllPost extends Component {
 		catch(err) {
 			console.error(err)
 		}
-		
+
 	}
 
 	render(){
@@ -40,7 +40,6 @@ class AllPost extends Component {
 				{posts.map((post) => {
 					return <div key={post.post_id}><Post post={post}/></div>
 				})}
-
 			</div>
 		)
 	}
