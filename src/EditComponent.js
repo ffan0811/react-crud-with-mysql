@@ -22,8 +22,6 @@ class EditComponent extends Component {
 					<input
 						required
 						type="text"
-						ref={(input) => this.getTitle = input}
-						defaultValue={this.props.post.title}
 						placeholder="Enter Post Title"
 					/>
 					<br />
@@ -31,8 +29,6 @@ class EditComponent extends Component {
 					<textarea
 						required
 						rows="5"
-						ref={(input) => this.getMessage = input}
-						defaultValue={this.props.post.message}
 						cols="28"
 						placeholder="Enter Post"
 					/>

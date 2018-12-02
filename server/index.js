@@ -65,7 +65,7 @@ app.post('/posts', (req, res) => {
 
 app.delete('/posts/:post_id', (req, res) => {
 	var { post_id } = req.params;
-	console.log(req.params.post_id);
+	
 	const DELETE_POST_QUERY = `DELETE FROM posts WHERE post_id=${post_id}`;
 	db.query(DELETE_POST_QUERY, (err, results) => {
 		if(err) {
@@ -74,21 +74,33 @@ app.delete('/posts/:post_id', (req, res) => {
 			return res.send(results);
 		}
 	})
+});
+
+app.put('/posts/:post_id', async(req, res, next) => {
 
 
-	// var {db} = req.locals;
+	try {
 
-	// 	var {id} = req.params;
+		var {post_id} = req.params;
+		var {title, content} = req.body;
 
-	// 	var result = await db.query(`SELECT * FROM posts WHERE id = ?`, [id]);
+		const UPDATE_POST_QUERY = `UPDATE posts SET title="${title}", content="${content}" WHERE post_id=${post_id}`;
 
-	// 	db.end();
+		db.query(UPDATE_POST_QUERY, (err, results) => {
+			if(err) {
+				return res.send(err);
+			}else {
+				return res.send(results);
+			}
+		})
 
-	// 	return res.status(200).json({
-	// 		status : true,
-	// 		result : result
-	// 	});
-})
+	}
+
+	catch (error) {
+
+		console.error(error);
+	}
+});
 
 
 app.listen(4000, () => {
