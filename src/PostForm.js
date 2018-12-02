@@ -39,7 +39,7 @@ class PostForm extends Component {
 	    console.log(data);
 	    try {
 	    	// axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
-	    	axios.post('http://localhost:4000/posts/add', data).then(res => {
+	    	axios.post('http://localhost:4000/posts', data).then(res => {
 	    		console.log(res);
 	    	}).then(data => {
 	    		console.log(data)

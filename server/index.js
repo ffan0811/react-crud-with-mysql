@@ -43,7 +43,8 @@ app.get('/posts', (req, res) => {
 	});
 });
 
-app.post('/posts/add', (req, res) => {
+app.post('/posts', (req, res) => {
+	console.log(req.body);
 	const { title, content } = req.body;
 
 	if(!title || !content){
@@ -62,17 +63,31 @@ app.post('/posts/add', (req, res) => {
 	});
 });
 
-app.delete('/posts/delete', (req, res) => {
-	// const { post_id } = req.body;
-	console.log(req.body);
-	const DELETE_POST_QUERY = `DELETE from posts where post_id=${post_id}`;
+app.delete('/posts/:post_id', (req, res) => {
+	var { post_id } = req.params;
+	console.log(req.params.post_id);
+	const DELETE_POST_QUERY = `DELETE FROM posts WHERE post_id=${post_id}`;
 	db.query(DELETE_POST_QUERY, (err, results) => {
 		if(err) {
 			return res.send(err);
 		}else {
-			return res.sond(results);
+			return res.send(results);
 		}
 	})
+
+
+	// var {db} = req.locals;
+
+	// 	var {id} = req.params;
+
+	// 	var result = await db.query(`SELECT * FROM posts WHERE id = ?`, [id]);
+
+	// 	db.end();
+
+	// 	return res.status(200).json({
+	// 		status : true,
+	// 		result : result
+	// 	});
 })
 
 

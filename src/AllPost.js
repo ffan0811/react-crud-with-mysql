@@ -15,6 +15,14 @@ class AllPost extends Component {
 		this.getPosts();
 	}
 
+	componentDidUpdate(prevProps, prevState) {
+		console.log(prevState);
+		console.log(this.state.posts);
+		if(prevState.posts !== this.state.posts) {
+			console.log("업뎃");
+		}
+	}
+
 	getPosts = () => {
 
 		try {
