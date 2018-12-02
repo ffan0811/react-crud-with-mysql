@@ -4,23 +4,19 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import Post from './Post';
 
+import {getTimestampToDate} from './functions';
+
 import EditComponent from './EditComponent';
 
 class AllPost extends Component {
 	state = {
-		posts: []
+		posts: [],
+		comments: []
 	}
 
 	componentDidMount() {
 		this.getPosts();
-	}
-
-	componentDidUpdate(prevProps, prevState) {
-		console.log(prevState);
-		console.log(this.state.posts);
-		if(prevState.posts !== this.state.posts) {
-			console.log("업뎃");
-		}
+		this.getComments();
 	}
 
 	getPosts = () => {
@@ -39,14 +35,29 @@ class AllPost extends Component {
 
 	}
 
+	getComments = () => {
+		try {
+			axios.get('http://localhost:4000/comments')
+				.then(({data}) => this.setState({ comments: data.results}))
+		}
+		catch(err) {
+			console.error(err)
+		}
+	}
+
 	render(){
-		const { posts } = this.state;
+		const { posts, comments } = this.state;
+
+
 		return(
 			<div>
 				<h1>All Posts</h1>
 
 				{posts.map((post) => {
 					return <div key={post.post_id}><Post post={post}/></div>
+				})}
+				{comments.map((comment) => {
+					return <div><strong>댓글</strong><p>{comment.content}</p></div>
 				})}
 			</div>
 		)

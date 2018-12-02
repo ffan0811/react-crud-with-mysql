@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import { connect } from 'react-redux';
+import {getTimestampToDate} from './functions';
+
 
 class Post extends Component {
 
@@ -9,7 +11,11 @@ class Post extends Component {
 		editForm: false,
 		post: {
 			title: this.props.post.title,
-			content:this.props.post.content	
+			content:this.props.post.content,
+			write_time: this.props.post.write_time
+		},
+		comment: {
+			content: ''
 		}
 		
 	}
@@ -35,11 +41,31 @@ class Post extends Component {
 		})
 	}
 
+	addComment = (post) => {
+
+		let data = {
+			post_id: post,
+			content: this.state.comment.content
+		}
+
+		console.log(data);
+
+		try {
+			axios.post('http://localhost:4000/comments', data)
+				.then(res => {
+					console.log(res);
+			})
+		}
+		catch(err) {
+			console.log(err);
+		}
+	}
+
 	handleUpdate = (post) => {
 		// e.preventDefault();
 		let post_id = post;
 
-		var data = {
+		let data = {
 	    	title: this.state.post.title,
 	    	content: this.state.post.content
 	    };
@@ -64,9 +90,12 @@ class Post extends Component {
 
 	render(){
 		const { post } = this.state;
+		const { comment } = this.state;
+
 		return(
 			<div>
 				<h2>{post.title}</h2>
+				<p>{post.write_time}</p>
 				<p>{post.content}</p>
 				{this.state.editForm ?
 						<div>
@@ -98,6 +127,18 @@ class Post extends Component {
 					 : 
 						<button onClick={this.handleForm}>Edit</button>}
 				<button onClick={() => this.handleDelete(this.props.post.post_id)}>Delete</button>
+				<br/>
+				<br/>
+				
+				<div>
+					<input
+						name="comment"
+						onChange={e => this.setState({ comment: { content: e.target.value}})}
+						type="test"
+						placeholder="Enter some comments"
+					/>
+					<button onClick={() => this.addComment(this.props.post.post_id)} type="button">댓글입력</button>
+				</div>
 			</div>
 		)
 	}

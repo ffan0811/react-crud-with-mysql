@@ -4,24 +4,6 @@ import axios from 'axios';
 
 class PostForm extends Component {
 
-	// handleSubmit = (e) => {
-	// 	e.preventDefault();
-	// 	const title = this.getTitle.value;
-	// 	const message = this.getMessage.value;
-	// 	const data = {
-	// 		id: new Date(),
-	// 		title,
-	// 		message,
-	// 		editing: false
-	// 	}
-	// 	this.props.dispatch({
-	// 		type:'ADD_POST',
-	// 		data
-	// 	});
-	// 	this.getTitle.value = '';
-	// 	this.getMessage.value = '';
-	// }
-
 	state = {
 		post: {
 			title: '타이틀임',
@@ -36,7 +18,6 @@ class PostForm extends Component {
 	    	title: post.title,
 	    	content: post.content
 	    };
-	    console.log(data);
 	    try {
 	    	// axios.get(`http://localhost:4000/posts/add?title=${post.title}&content=${post.content}`)
 	    	axios.post('http://localhost:4000/posts', data).then(res => {
