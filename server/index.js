@@ -1,7 +1,7 @@
 const path = require('path');
 const express = require('express');
-const mysql = require('mysql');
 const cors = require('cors');
+require('dotenv').config();
 
 let { check, validationResult } = require('express-validator/check');
 let { sanitize } = require('express-validator/filter');
@@ -17,7 +17,7 @@ var runValidator = function() {
 		if(!errors.isEmpty()) {
 			return res.status(400).json({
 				status : false,
-				errors: erros.array()
+				errors: errors.array()
 			})
 		}
 		else {
@@ -26,20 +26,34 @@ var runValidator = function() {
 	}
 };
 
-// var Database = require(path.resolve(process.env.LIB_PATH, 'mysql'));
+var Database = require(path.resolve(process.env.LIB_PATH, 'mysql'));
 
-const db = mysql.createConnection({
-	host: 'local-test.cetowy0l4rvd.ap-northeast-2.rds.amazonaws.com',
-	user: 'root',
-	password: '1enakee))&$',
-	database: 'mydb_mj'
+app.use(async(req, res, next) => {
+
+	req.locals = {};
+
+	req.locals['db'] = new Database({
+		host     : 'local-test.cetowy0l4rvd.ap-northeast-2.rds.amazonaws.com',
+		user     : 'root',
+		password : '1enakee))&$',
+		database : 'mydb_mj'
+	});
+
+	next();
 });
 
-db.connect(err => {
-	if(err) {
-		return err;
-	}
-});
+// const db = mysql.createConnection({
+// 	host: 'local-test.cetowy0l4rvd.ap-northeast-2.rds.amazonaws.com',
+// 	user: 'root',
+// 	password: '1enakee))&$',
+// 	database: 'mydb_mj'
+// });
+
+// db.connect(err => {
+// 	if(err) {
+// 		return err;
+// 	}
+// });
 
 app.use(cors());
 
@@ -47,36 +61,80 @@ app.get('/', (req, res) => {
 	res.send('go to /all to see posts')
 });
 
-app.get('/posts', (req, res) => {
+// post 목록 갖고오기
+app.get('/posts', async(req, res, next) => {
 
-	let SELECT_ALL_POSTS_QUERTY = 'SELECT * FROM posts';
+	try {
+		var {db} = req.locals;
 
-	//from_unixtime(timestamp)
+		var result = await db.query('SELECT * FROM posts');
 
-	db.query(SELECT_ALL_POSTS_QUERTY, (err, results) => {
-		if(err) {
-			return res.send(err)
-		}else {
-			return res.json({
-				results: results
-			})
-		}
-	});
+		db.end();
+
+		return res.status(200).json({
+			status: true,
+			result: result
+		})
+	}
+
+	catch(err){
+		db.end();
+
+		return res.status(500).json({
+			status: false,
+			error: err
+		})
+	}
+
+	// let SELECT_ALL_POSTS_QUERTY = 'SELECT * FROM posts';
+
+	// //from_unixtime(timestamp)
+
+	// db.query(SELECT_ALL_POSTS_QUERTY, (err, results) => {
+	// 	if(err) {
+	// 		return res.send(err)
+	// 	}else {
+	// 		return res.json({
+	// 			results: results
+	// 		})
+	// 	}
+	// });
 });
 
 
-app.get('/comments', (req, res) => {
-	let SELECT_ALL_COMMENTS_QUERY = 'SELECT * FROM comments';
+app.get('/comments', async(req, res, next) => {
 
-	db.query(SELECT_ALL_COMMENTS_QUERY, (err, results) => {
-		if(err) {
-			return res.send(err)
-		}else {
-			return res.json({
-				results: results
-			})
-		}
-	});
+	try {
+		var {db} = req.locals;
+
+		var result = await db.query('SELECT * FROM comments');
+
+		db.end();
+
+		return res.status(200).json({
+			status: true,
+			result: result
+		})
+	}
+	catch(err) {
+		db.end();
+
+		return res.status(500).json({
+			status: false,
+			error: err
+		})
+	}
+	// let SELECT_ALL_COMMENTS_QUERY = 'SELECT * FROM comments';
+
+	// db.query(SELECT_ALL_COMMENTS_QUERY, (err, results) => {
+	// 	if(err) {
+	// 		return res.send(err)
+	// 	}else {
+	// 		return res.json({
+	// 			results: results
+	// 		})
+	// 	}
+	// });
 });
 
 var writeValidator = [
@@ -85,36 +143,61 @@ var writeValidator = [
 	check('content').not().isEmpty()
 ];
 
-app.post('/posts', writeValidator, runValidator(), async(req, res) => {
-	let { title, content } = req.body;
+app.post('/posts', writeValidator, runValidator(), async(req, res, next) => {
 
 	try {
-		console.log("aa");
-		var result = await db.query("INSERT INTO posts SET ?", {
-			title : title,
-			content : content,
-			write_time : parseInt(new Date().getTime() / 1000)
+		var {db} = req.locals;
+
+		var { title, content } = req.body;
+
+		var result = await db.query("INSERT INTO post SET ?", {
+			title: title,
+			content: content,
+			write_time: parseInt(new Date().getTime() / 1000)
 		});
 
 		db.end();
 
 		return res.status(200).json({
-			status : true,
-			result : result
-		});		
+			status: true,
+			result: result
+		})
 	}
 
 	catch(err) {
-		console.log(err);
-		
 		db.end();
 
-
 		return res.status(500).json({
-			status : false,
+			status: false,
 			error: err
-		});
+		})
 	}
+
+	// let { title, content } = req.body;
+
+	// try {
+	// 	var result = await db.query("INSERT INTO posts SET ?", {
+	// 		title : title,
+	// 		content : content,
+	// 		write_time : parseInt(new Date().getTime() / 1000)
+	// 	});
+
+	// 	db.end();
+
+	// 	return res.status(200).json({
+	// 		status : true,
+	// 		result : result
+	// 	});		
+	// }
+
+	// catch(err) {
+	// 	db.end();
+
+	// 	return res.status(500).json({
+	// 		status : false,
+	// 		error: err
+	// 	});
+	// }
 	
 
 	// let INSERT_POST_QUERY = `INSERT INTO posts (title, content) VALUES('${title}', '${content}')`;
@@ -128,17 +211,42 @@ app.post('/posts', writeValidator, runValidator(), async(req, res) => {
 	// });
 });
 
-app.delete('/posts/:post_id', (req, res) => {
-	let { post_id } = req.params;
+app.delete('/posts/:post_id', async(req, res, next) => {
+
+	try {
+		var {db} = req.locals;
+
+		var {post_id} = req.params;
+
+		var result = await db.query(`DELETE FROM posts WHERE post_id=${post_id}`);
+
+		db.end();
+
+		return res.status(200).json({
+			status: true,
+			result: result
+		})
+	}
+
+	catch(err) {
+		db.end();
+
+		return res.status(500).json({
+			status: false,
+			error: err
+		})
+	}
+
+	// let { post_id } = req.params;
 	
-	let DELETE_POST_QUERY = `DELETE FROM posts WHERE post_id=${post_id}`;
-	db.query(DELETE_POST_QUERY, (err, results) => {
-		if(err) {
-			return res.send(err);
-		}else {
-			return res.send(results);
-		}
-	})
+	// let DELETE_POST_QUERY = `DELETE FROM posts WHERE post_id=${post_id}`;
+	// db.query(DELETE_POST_QUERY, (err, results) => {
+	// 	if(err) {
+	// 		return res.send(err);
+	// 	}else {
+	// 		return res.send(results);
+	// 	}
+	// })
 });
 
 var updateValidator = [
@@ -152,7 +260,8 @@ app.put('/posts/:post_id', updateValidator, runValidator(), async(req, res, next
 
 
 	try {
-		console.log(req.params, req.body);
+
+		var {db} = req.locals;
 
 		let {post_id} = req.params;
 		let {title, content} = req.body;
@@ -187,16 +296,15 @@ app.put('/posts/:post_id', updateValidator, runValidator(), async(req, res, next
 
 	}
 
-	catch (error) {
+	catch (err) {
 
 		db.end();
 
 		return res.status(500).json({
 			status : false,
-			error : error
+			error : err
 		});
 
-		console.error(error);
 	}
 });
 
@@ -206,11 +314,11 @@ var commentValidator = [
 	check('content').isLength({ min: 1, max: 100 })
 ];
 
-app.post('/comments', commentValidator, runValidator(), async(req, res) => {
+app.post('/comments', commentValidator, runValidator(), async(req, res, next) => {
 
 	try {
-		console.log("들어옴");
-		console.log(req.body);
+
+		var {db} = req.locals;
 
 		let { post_id, content } = req.body;
 		var result = await db.query("INSERT INTO comments SET ?", {
@@ -228,10 +336,8 @@ app.post('/comments', commentValidator, runValidator(), async(req, res) => {
 	}
 
 	catch(err) {
-		console.log(err);
 		
 		db.end();
-
 
 		return res.status(500).json({
 			status : false,
