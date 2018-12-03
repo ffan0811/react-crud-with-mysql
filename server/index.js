@@ -101,7 +101,7 @@ app.get('/posts', async(req, res, next) => {
 	// });
 });
 
-
+// 코멘트 목록 가져오기
 app.get('/comments', async(req, res, next) => {
 
 	try {
@@ -137,6 +137,9 @@ app.get('/comments', async(req, res, next) => {
 	// });
 });
 
+
+// post 생성하기
+
 var writeValidator = [
 	check('title').not().isEmpty().withMessage('값이 비었다'),
 	check('title').isLength({min:1, max:255}),
@@ -150,7 +153,7 @@ app.post('/posts', writeValidator, runValidator(), async(req, res, next) => {
 
 		var { title, content } = req.body;
 
-		var result = await db.query("INSERT INTO post SET ?", {
+		var result = await db.query("INSERT INTO posts SET ?", {
 			title: title,
 			content: content,
 			write_time: parseInt(new Date().getTime() / 1000)
