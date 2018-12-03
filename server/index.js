@@ -101,7 +101,7 @@ app.get('/posts', async(req, res, next) => {
 	// });
 });
 
-// 코멘트 목록 가져오기
+// 댓글 목록 가져오기
 app.get('/comments', async(req, res, next) => {
 
 	try {
