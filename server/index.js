@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
@@ -25,6 +26,7 @@ var runValidator = function() {
 	}
 };
 
+// var Database = require(path.resolve(process.env.LIB_PATH, 'mysql'));
 
 const db = mysql.createConnection({
 	host: 'local-test.cetowy0l4rvd.ap-northeast-2.rds.amazonaws.com',
@@ -38,7 +40,6 @@ db.connect(err => {
 		return err;
 	}
 });
-
 
 app.use(cors());
 
@@ -62,6 +63,7 @@ app.get('/posts', (req, res) => {
 		}
 	});
 });
+
 
 app.get('/comments', (req, res) => {
 	let SELECT_ALL_COMMENTS_QUERY = 'SELECT * FROM comments';
@@ -198,7 +200,13 @@ app.put('/posts/:post_id', updateValidator, runValidator(), async(req, res, next
 	}
 });
 
-app.post('/comments', async(req, res) => {
+
+var commentValidator = [
+	check('content').not().isEmpty().withMessage('값이 비었다'),
+	check('content').isLength({ min: 1, max: 100 })
+];
+
+app.post('/comments', commentValidator, runValidator(), async(req, res) => {
 
 	try {
 		console.log("들어옴");

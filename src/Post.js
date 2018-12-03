@@ -12,7 +12,9 @@ class Post extends Component {
 		post: {
 			title: this.props.post.title,
 			content:this.props.post.content,
-			write_time: this.props.post.write_time
+			write_time: this.props.post.write_time,
+			upvote: this.props.post.upvote,
+			downvote: this.props.post.downvote,
 		},
 		comment: {
 			content: ''
@@ -97,6 +99,8 @@ class Post extends Component {
 				<h2>{post.title}</h2>
 				<p>{post.write_time}</p>
 				<p>{post.content}</p>
+				<p>{post.upvote}</p>
+				<p>{post.downvote}</p>
 				{this.state.editForm ?
 						<div>
 							<form>
