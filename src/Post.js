@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import { connect } from 'react-redux';
-import {getTimestampToDate} from './functions';
 
 
 class Post extends Component {
@@ -24,13 +23,12 @@ class Post extends Component {
 
 	handleDelete = (post) => {
 		let post_id = post;
-		console.log(post_id);
 
 		try {
 			axios.delete(`http://localhost:4000/posts/${post_id}`)
 				.then(res => {
 					console.log("삭제 성공, 이제 내역을 업데이트 해야겠지?");
-				})
+				});
 		}
 		catch(err) {
 			console.error(err);
@@ -91,8 +89,7 @@ class Post extends Component {
 	}
 
 	render(){
-		const { post } = this.state;
-		const { comment } = this.state;
+		const { post, comment, commentLists } = this.state;
 
 		return(
 			<div>
@@ -133,7 +130,9 @@ class Post extends Component {
 				<button onClick={() => this.handleDelete(this.props.post.post_id)}>Delete</button>
 				<br/>
 				<br/>
-				
+				<div>
+					<p>댓글 목록</p>
+				</div>
 				<div>
 					<input
 						name="comment"

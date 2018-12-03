@@ -214,12 +214,15 @@ app.post('/posts', writeValidator, runValidator(), async(req, res, next) => {
 	// });
 });
 
+// 포스트 삭제하기 (댓글 먼저 지워야 포스트가 삭제 가능 왜냐하면 FK로 참조되어있기때문에)
+
 app.delete('/posts/:post_id', async(req, res, next) => {
 
 	try {
 		var {db} = req.locals;
 
 		var {post_id} = req.params;
+
 
 		var result = await db.query(`DELETE FROM posts WHERE post_id=${post_id}`);
 
@@ -252,6 +255,8 @@ app.delete('/posts/:post_id', async(req, res, next) => {
 	// })
 });
 
+// 포스트 업데이트 하기
+
 var updateValidator = [
 	check('title').not().isEmpty(),
 	check('title').isLength({min:1, max:255}),
@@ -260,7 +265,6 @@ var updateValidator = [
 ];
 
 app.put('/posts/:post_id', updateValidator, runValidator(), async(req, res, next) => {
-
 
 	try {
 

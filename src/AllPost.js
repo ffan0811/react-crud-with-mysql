@@ -7,12 +7,12 @@ import Post from './Post';
 class AllPost extends Component {
 	state = {
 		posts: [],
-		// comments: []
+		comments: []
 	}
 
 	componentDidMount() {
 		this.getPosts();
-		// this.getComments();
+		this.getComments();
 	}
 
 	getPosts = () => {
@@ -28,15 +28,15 @@ class AllPost extends Component {
 
 	}
 
-	// getComments = () => {
-	// 	try {
-	// 		axios.get('http://localhost:4000/comments')
-	// 			.then(({data}) => this.setState({ comments: data.results}))
-	// 	}
-	// 	catch(err) {
-	// 		console.error(err)
-	// 	}
-	// }
+	getComments = () => {
+		try {
+			axios.get('http://localhost:4000/comments')
+			.then(({data}) => console.log(data.result))
+		}
+		catch(err) {
+			console.error(err)
+		}
+	}
 
 	render(){
 		const { posts } = this.state;
