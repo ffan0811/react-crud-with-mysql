@@ -107,7 +107,8 @@ app.get('/comments', async(req, res, next) => {
 	try {
 		var {db} = req.locals;
 
-		var result = await db.query('SELECT * FROM comments');
+
+		var result = await db.query(`SELECT * FROM comments`);
 
 		db.end();
 

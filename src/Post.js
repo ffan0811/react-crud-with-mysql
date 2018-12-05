@@ -14,6 +14,7 @@ class Post extends Component {
 			write_time: this.props.post.write_time,
 			upvote: this.props.post.upvote,
 			downvote: this.props.post.downvote,
+
 		},
 		comment: {
 			content: ''
@@ -88,8 +89,10 @@ class Post extends Component {
 		}
 	}
 
+	
+
 	render(){
-		const { post, comment, commentLists } = this.state;
+		const { post } = this.state;
 
 		return(
 			<div>
@@ -130,9 +133,6 @@ class Post extends Component {
 				<button onClick={() => this.handleDelete(this.props.post.post_id)}>Delete</button>
 				<br/>
 				<br/>
-				<div>
-					<p>댓글 목록</p>
-				</div>
 				<div>
 					<input
 						name="comment"

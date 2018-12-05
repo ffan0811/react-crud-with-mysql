@@ -31,7 +31,11 @@ class AllPost extends Component {
 	getComments = () => {
 		try {
 			axios.get('http://localhost:4000/comments')
-			.then(({data}) => console.log(data.result))
+			.then(({data}) => {
+				this.setState({
+					comments: data.result
+				})
+			})
 		}
 		catch(err) {
 			console.error(err)
@@ -39,7 +43,7 @@ class AllPost extends Component {
 	}
 
 	render(){
-		const { posts } = this.state;
+		const { posts, comments } = this.state;
 
 
 		return(
@@ -47,7 +51,15 @@ class AllPost extends Component {
 				<h1>All Posts</h1>
 
 				{posts.map((post) => {
-					return <div key={post.post_id}><Post post={post}/></div>
+					return <div key={post.post_id}><Post post={post}/>
+					<br/>
+					<strong>댓글 목록</strong>
+					{comments.filter((list) => {
+						return list.post_id === post.post_id;
+					}).map((comment) => {
+						return <div key={comment.comment_id}>{comment.content}</div>
+					})}
+					</div>
 				})}
 			</div>
 		)
