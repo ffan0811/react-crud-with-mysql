@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {getTimestampToDate} from './lib/functions';
 import axios from 'axios';
 
 import { connect } from 'react-redux';
@@ -14,7 +15,7 @@ class Post extends Component {
 			write_time: this.props.post.write_time,
 			upvote: this.props.post.upvote,
 			downvote: this.props.post.downvote,
-
+			fav: this.props.post.fav
 		},
 		comment: {
 			content: ''
@@ -22,14 +23,38 @@ class Post extends Component {
 		
 	}
 
-	handleDelete = (post) => {
+	updateChanged = async(post_id) => {
+
+		try {
+
+			var {data} = await axios.get('http://localhost:4000/posts');
+			var updated = await data.result.filter((list) => {
+				return list.post_id === post_id
+			}).map((post) => {
+				return post
+			});
+			return this.setState({
+				post: updated[0]
+			})
+		}
+		catch(err) {
+			console.error(err);
+		}
+
+	}
+
+	deletePost = async(post) => {
 		let post_id = post;
 
 		try {
-			axios.delete(`http://localhost:4000/posts/${post_id}`)
-				.then(res => {
-					console.log("삭제 성공, 이제 내역을 업데이트 해야겠지?");
-				});
+			await axios.delete(`http://localhost:4000/deleteAll/comments/${post_id}`);
+			await axios.delete(`http://localhost:4000/posts/${post_id}`);
+			var {data} = await axios.get('http://localhost:4000/posts');
+			console.log(data.result);
+			
+			this.setState({
+				post: data.result
+			})
 		}
 		catch(err) {
 			console.error(err);
@@ -49,12 +74,10 @@ class Post extends Component {
 			content: this.state.comment.content
 		}
 
-		console.log(data);
-
 		try {
 			axios.post('http://localhost:4000/comments', data)
-				.then(res => {
-					console.log(res);
+				.then(() => {
+					this.updateChanged(data.post_id);
 			})
 		}
 		catch(err) {
@@ -62,7 +85,7 @@ class Post extends Component {
 		}
 	}
 
-	handleUpdate = (post) => {
+	updatePost = (post) => {
 		// e.preventDefault();
 		let post_id = post;
 
@@ -76,8 +99,8 @@ class Post extends Component {
 
 		try {
 			axios.put(`http://localhost:4000/posts/${post_id}`,data)
-				.then(res => {
-					console.log("업데이트 성공, 이제 내역을 업데이트 해야겠지?");
+				.then(() => {
+					this.updateChanged(post_id);
 				}).then(() => {
 					this.setState({
 						editForm: !this.state.editForm
@@ -89,18 +112,83 @@ class Post extends Component {
 		}
 	}
 
+	upvotePost = (post) => {
+		let post_id = post;
+		let data = {
+			upvote: parseInt(this.state.post.upvote)
+		};
+		try{
+			axios.put(`http://localhost:4000/upvote/${post_id}`, data)
+				.then(() => {
+					this.updateChanged(post_id);
+				})
+			
+		}
+		catch(err) {
+			console.error(err);
+		}
+	}
+
+	downvotePost = (post) => {
+		let post_id = post;
+		let data = {
+			downvote: parseInt(this.state.post.downvote)
+		};
+		try{
+			axios.put(`http://localhost:4000/downvote/${post_id}`, data)
+				.then(() => {
+					this.updateChanged(post_id);
+				})
+		}
+		catch(err) {
+			console.error(err);
+		}
+	}
+
+	toggleFav = (post) => {
+
+		let post_id = post;
+		
+		if(this.state.post.fav === 1){
+			try{
+				axios.put(`http://localhost:4000/removeFavorite/${post_id}`)
+					.then(res => {
+						this.updateChanged(post_id);
+					})
+			}
+			catch(err) {
+				console.error(err);
+			}
+		}else {
+			try{
+				axios.put(`http://localhost:4000/addFavorite/${post_id}`)
+					.then(res => {
+						this.updateChanged(post_id);
+					})
+			}
+			catch(err) {
+				console.error(err);
+			}
+		}
+	}
+
 	
 
 	render(){
 		const { post } = this.state;
 
+		const write_time = getTimestampToDate(post.write_time);
+
 		return(
 			<div>
-				<h2>{post.title}</h2>
-				<p>{post.write_time}</p>
+				<h2>{post.title}<span style={{cursor: 'pointer'}} onClick={() => this.toggleFav(this.props.post.post_id)}>{post.fav === 1 ? <span role="img" aria-label="즐겨찾기 추가">💗</span> : <span role="img" aria-label="즐겨찾기 취소">🖤</span>}</span></h2>
+				<p>{write_time}</p>
 				<p>{post.content}</p>
-				<p>{post.upvote}</p>
-				<p>{post.downvote}</p>
+				<div style={{display: 'flex'}}>
+					<p style={{cursor: 'pointer'}} onClick={() => this.upvotePost(this.props.post.post_id)}><span role="img" aria-label="좋아요">👍</span> {post.upvote}</p>
+					<p style={{cursor: 'pointer'}} onClick={() => this.downvotePost(this.props.post.post_id)}><span role="img" aria-label="싫어요">👎</span> {post.downvote}</p>
+				</div>
+				
 				{this.state.editForm ?
 						<div>
 							<form>
@@ -125,12 +213,12 @@ class Post extends Component {
 								/>
 								<br />
 								<br />
-								<button type="button" onClick={() => this.handleUpdate(this.props.post.post_id)}>Update</button>
+								<button type="button" onClick={() => this.updatePost(this.props.post.post_id)}>수정</button>
 							</form>
 						</div>
 					 : 
-						<button onClick={this.handleForm}>Edit</button>}
-				<button onClick={() => this.handleDelete(this.props.post.post_id)}>Delete</button>
+						<button onClick={this.handleForm}>수정</button>}
+				<button onClick={() => this.deletePost(this.props.post.post_id)}>삭제</button>
 				<br/>
 				<br/>
 				<div>
