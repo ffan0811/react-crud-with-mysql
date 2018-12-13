@@ -80,7 +80,7 @@ app.get('/comments', async(req, res, next) => {
 	try {
 		var {db} = req.locals;
 
-		var result = await db.query(`SELECT * FROM comments`);
+		var result = await db.query(`SELECT * FROM comments_test ORDER BY group_number ASC, group_order ASC`);
 
 		db.end();
 
@@ -281,12 +281,30 @@ app.post('/comments', commentValidator, runValidator(), async(req, res, next) =>
 
 		var {db} = req.locals;
 
-		var { post_id, content } = req.body;
-		var result = await db.query("INSERT INTO comments SET ?", {
+		var { post_id, group_number, parent_id, content } = req.body;
+
+		// group_number
+		// var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
+
+		// insert 할 때의 group_order
+		var grp_ord = await db.query(`SELECT MAX(group_order) AS max_order FROM comments_test WHERE parent_id = ${parent_id}`);
+
+		// insert 할 때의 group_order보다 크거나 같은 row(s)의 group_order + 1
+		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_order >= ${grp_ord[0].max_order} + 1`);
+
+		// depth
+		// var depth = await db.query(`SELECT `)
+
+		var result = await db.query("INSERT INTO comments_test SET ?", {
 			post_id: post_id,
-			content : content,
-			write_time : parseInt(new Date().getTime() / 1000)
+			group_number: group_number,
+			group_order: grp_ord[0].max_order,
+			// depth: depth,
+			parent_id: parent_id,
+			content : content
 		});
+
+		// console.log(result);
 
 		db.end();
 
@@ -308,46 +326,46 @@ app.post('/comments', commentValidator, runValidator(), async(req, res, next) =>
 });
 
 // 대댓글 입력
-var commentValidator = [
-	check('content').not().isEmpty().withMessage('값이 비었다'),
-	check('content').isLength({ min: 1, max: 100 })
-];
+// var commentValidator = [
+// 	check('content').not().isEmpty().withMessage('값이 비었다'),
+// 	check('content').isLength({ min: 1, max: 100 })
+// ];
 
-app.post('/reComments', commentValidator, runValidator(), async(req, res, next) => {
+// app.post('/reComments', commentValidator, runValidator(), async(req, res, next) => {
 
-	try {
+// 	try {
 
-		var {db} = req.locals;
+// 		var {db} = req.locals;
 
-		var { post_id, content, depth, seq } = req.body;
-		console.log(req.body);
-		var result = await db.query("INSERT INTO comments SET ?", {
-			post_id: post_id,
-			content : content,
-			write_time : parseInt(new Date().getTime() / 1000),
-			depth: depth + 1,
-			parent: depth,
-			seq: seq
-		});
+// 		var { post_id, content, depth, seq } = req.body;
+// 		console.log(req.body);
+// 		var result = await db.query("INSERT INTO comments SET ?", {
+// 			post_id: post_id,
+// 			content : content,
+// 			write_time : parseInt(new Date().getTime() / 1000),
+// 			depth: depth + 1,
+// 			parent: depth,
+// 			seq: seq
+// 		});
 
-		db.end();
+// 		db.end();
 
-		return res.status(200).json({
-			status : true,
-			result : result
-		});		
-	}
+// 		return res.status(200).json({
+// 			status : true,
+// 			result : result
+// 		});		
+// 	}
 
-	catch(err) {
+// 	catch(err) {
 		
-		db.end();
+// 		db.end();
 
-		return res.status(500).json({
-			status : false,
-			error: err
-		});
-	}
-});
+// 		return res.status(500).json({
+// 			status : false,
+// 			error: err
+// 		});
+// 	}
+// });
 
 //upvote
 app.put('/upvote/:post_id', async(req, res, next) => {

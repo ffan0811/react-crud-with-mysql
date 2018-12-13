@@ -16,9 +16,6 @@ class Post extends Component {
 			upvote: this.props.post.upvote,
 			downvote: this.props.post.downvote,
 			fav: this.props.post.fav
-		},
-		comment: {
-			content: ''
 		}
 		
 	}
@@ -67,23 +64,29 @@ class Post extends Component {
 		})
 	}
 
-	addComment = (post) => {
+	// addComment = (post) => {
 
-		let data = {
-			post_id: post,
-			content: this.state.comment.content
-		}
+	// 	let data = {
+	// 		post_id: post,
+	// 		group_order: 0,
+	// 		depth: 1,
+	// 		parent_id: 0,
+	// 		content: this.state.comment.content,
+	// 	}
 
-		try {
-			axios.post('http://localhost:4000/comments', data)
-				.then(() => {
-					this.updateChanged(data.post_id);
-			})
-		}
-		catch(err) {
-			console.log(err);
-		}
-	}
+	// 	console.log(data);
+
+	// 	try {
+	// 		axios.post('http://localhost:4000/comments', data)
+	// 			.then((res) => {
+	// 				// this.updateChanged(data.post_id);
+	// 				console.log(res);
+	// 		})
+	// 	}
+	// 	catch(err) {
+	// 		console.log(err);
+	// 	}
+	// }
 
 	updatePost = (post) => {
 		// e.preventDefault();
@@ -221,15 +224,6 @@ class Post extends Component {
 				<button onClick={() => this.deletePost(this.props.post.post_id)}>삭제</button>
 				<br/>
 				<br/>
-				<div>
-					<input
-						name="comment"
-						onChange={e => this.setState({ comment: { content: e.target.value}})}
-						type="test"
-						placeholder="Enter some comments"
-					/>
-					<button onClick={() => this.addComment(this.props.post.post_id)} type="button">댓글입력</button>
-				</div>
 			</div>
 		)
 	}

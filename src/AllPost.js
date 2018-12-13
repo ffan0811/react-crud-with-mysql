@@ -61,7 +61,7 @@ class AllPost extends Component {
 			{comments.filter((list) => {
 				return list.post_id === post.post_id;
 			}).map((comment) => {
-				return <div key={comment.comment_id}><Comment comment={comment}/></div>
+				return <div key={comment.idx}><Comment comment={comment}/></div>
 			})}
 			<div style={{background: 'pink', width: '100%', height: '2px'}}></div>
 			</div>
@@ -76,7 +76,7 @@ class AllPost extends Component {
 				{comments.filter((list) => {
 					return list.post_id === post.post_id;
 				}).map((comment) => {
-					return <div key={comment.comment_id}><Comment comment={comment}/></div>
+					return <div key={comment.idx}><Comment comment={comment}/></div>
 				})}
 				<div style={{background: 'pink', width: '100%', height: '2px'}}></div>
 				</div>
