@@ -284,7 +284,11 @@ app.post('/comments', commentValidator, runValidator(), async(req, res, next) =>
 		var { post_id, group_number, parent_id, content } = req.body;
 
 		// group_number
-		// var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
+		var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
+
+		if(group_number === null) {
+			group_number = grp_num[0].max_no
+		}
 
 		// insert 할 때의 group_order
 		var grp_ord = await db.query(`SELECT MAX(group_order) AS max_order FROM comments_test WHERE parent_id = ${parent_id}`);

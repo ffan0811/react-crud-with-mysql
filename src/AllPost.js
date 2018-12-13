@@ -82,7 +82,6 @@ class AllPost extends Component {
 				</div>
 		});
 
-
 		return(
 			<div>
 				<div style={{display: 'flex'}}>

@@ -71,15 +71,7 @@ class Comment extends Component{
         const { comment, reComment, defaultReComment } = this.state;
         return(
             <div>
-                <div>
-                    <input
-                        name="defaultComment"
-                        onChange={e => this.setState({ defaultComment: e.target.value })}
-                        type="test"
-                        placeholder="Enter some comments"
-                    />
-                    <button onClick={() => this.addComment(comment.post_id)} type="button">댓글입력</button>
-                </div>
+                
 
                 <span style={{marginLeft: `${comment.depth * 20}px`}}>{comment.content}</span>
                 <span onClick={() => this.deleteComment(comment.idx)} style={{cursor: 'pointer'}} role="img" aria-label="댓글삭제"> ❌</span> 
