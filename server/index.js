@@ -277,11 +277,13 @@ var commentValidator = [
 
 app.post('/comments', commentValidator, runValidator(), async(req, res, next) => {
 
+	var { db, result } = req.locals;
+
 	try {
 
-		var {db} = req.locals;
+		var { post_id, group_number, group_order, parent_id, depth, content } = req.body;
 
-		var { post_id, group_number, parent_id, content } = req.body;
+		await db.beginTransaction();
 
 		// group_number
 		var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
@@ -290,43 +292,27 @@ app.post('/comments', commentValidator, runValidator(), async(req, res, next) =>
 			group_number = grp_num[0].max_no
 		}
 
-		// insert 할 때의 group_order
-		var grp_ord = await db.query(`SELECT MAX(group_order) AS max_order FROM comments_test WHERE parent_id = ${parent_id}`);
+		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_number = ${group_number} AND group_order >= ${group_order}`);
 
-		// insert 할 때의 group_order보다 크거나 같은 row(s)의 group_order + 1
-		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_order >= ${grp_ord[0].max_order} + 1`);
-
-		// depth
-		// var depth = await db.query(`SELECT `)
-
-		var result = await db.query("INSERT INTO comments_test SET ?", {
+		await db.query("INSERT INTO comments_test SET ?", {
 			post_id: post_id,
 			group_number: group_number,
-			group_order: grp_ord[0].max_order,
-			// depth: depth,
+			group_order: group_order,
+			depth: depth,
 			parent_id: parent_id,
 			content : content
-		});
+		});	
 
-		// console.log(result);
-
-		db.end();
-
-		return res.status(200).json({
-			status : true,
-			result : result
-		});		
+		await db.commit();
 	}
 
 	catch(err) {
-		
-		db.end();
-
-		return res.status(500).json({
-			status : false,
-			error: err
-		});
+		await db.rollback();
 	}
+
+	db.end();
+	return res.json(result);
+
 });
 
 // 대댓글 입력
