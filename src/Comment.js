@@ -17,8 +17,13 @@ class Comment extends Component{
     }
     deleteComment = (comment) => {
         let comment_id = comment;
+        console.log(comment_id);
+        let data = {
+            group_number: this.state.comment.group_number,
+            group_order: this.props.comment.group_order
+        }
 		try{
-			axios.delete(`http://localhost:4000/comments/${comment_id}`)
+			axios.post(`http://localhost:4000/comments/${comment_id}`, data)
 				.then(res => {
 					console.log("코멘트 삭제");
 				})
@@ -62,7 +67,7 @@ class Comment extends Component{
                 
 
                 <span style={{marginLeft: `${comment.depth * 20}px`}}>{comment.content}</span>
-                <span onClick={() => this.deleteComment(comment.idx)} style={{cursor: 'pointer'}} role="img" aria-label="댓글삭제"> ❌</span> 
+                <span onClick={() => this.deleteComment(comment.comment_id)} style={{cursor: 'pointer'}} role="img" aria-label="댓글삭제"> ❌</span> 
                 <span onClick={this.askReComment} style={{cursor: 'pointer'}} role="img" aria-label="답댓글 달기"> ➕</span> 
                 <br/>
                 {reComment ? <div><input

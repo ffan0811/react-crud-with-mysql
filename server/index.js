@@ -99,6 +99,111 @@ app.get('/comments', async(req, res, next) => {
 	}
 });
 
+// 댓글 입력
+var commentValidator = [
+	check('content').not().isEmpty().withMessage('값이 비었다'),
+	check('content').isLength({ min: 1, max: 100 })
+];
+
+app.post('/comments', commentValidator, runValidator(), async (req, res, next) => {
+
+	var { db, result } = req.locals;
+
+	try {
+
+		var { post_id, group_number, group_order, parent_id, depth, content } = req.body;
+
+		await db.beginTransaction();
+
+		// group_number
+		var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
+
+		if (group_number === null) {
+			group_number = grp_num[0].max_no
+		}
+
+		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_number = ${group_number} AND group_order >= ${group_order}`);
+
+		await db.query("INSERT INTO comments_test SET ?", {
+			post_id: post_id,
+			group_number: group_number,
+			group_order: group_order,
+			depth: depth,
+			parent_id: parent_id,
+			content: content
+		});
+
+		await db.commit();
+	}
+
+	catch (err) {
+		await db.rollback();
+	}
+
+	db.end();
+	return res.json(result);
+
+});
+
+
+//댓글 삭제
+app.post('/comments/:comment_id', async (req, res, next) => {
+	try {
+		var { db } = req.locals;
+
+		var { comment_id } = req.params;
+
+		var { group_number, group_order } = req.body;
+
+		var result = await db.query(`DELETE FROM comments_test WHERE idx=${comment_id}`);
+
+		await db.query(`UPDATE comments_test SET group_order = group_order - 1 WHERE group_number = ${group_number} AND group_order > ${group_order}`);
+
+		db.end();
+
+		return res.status(200).json({
+			status: true,
+			result: result
+		});
+	}
+	catch (err) {
+		db.end();
+
+		return res.status(500).json({
+			status: false,
+			error: err
+		});
+	}
+});
+
+//댓글 전체 삭제
+app.delete('/deleteAll/comments/:post_id', async (req, res, next) => {
+	try {
+		console.log("들어옴");
+		var { db } = req.locals;
+
+		var { post_id } = req.params;
+		console.log(post_id);
+
+		var result = await db.query(`DELETE FROM comments WHERE post_id=${post_id}`);
+
+		db.end();
+
+		return res.status(200).json({
+			status: true,
+			result: result
+		});
+	}
+	catch (err) {
+		db.end();
+
+		return res.status(500).json({
+			status: false,
+			error: err
+		});
+	}
+});
+
 
 // post 생성하기
 
@@ -169,59 +274,6 @@ app.delete('/posts/:post_id', async(req, res, next) => {
 	}
 });
 
-//댓글 삭제
-app.delete('/comments/:comment_id', async(req, res, next) => {
-	try{
-		var {db} = req.locals;
-
-		var {comment_id} = req.params;
-
-		var result = await db.query(`DELETE FROM comments WHERE comment_id=${comment_id}`);
-
-		db.end();
-
-		return res.status(200).json({
-			status: true,
-			result: result
-		});
-	}
-	catch(err){
-		db.end();
-
-		return res.status(500).json({
-			status: false,
-			error: err
-		});
-	}
-});
-
-//댓글 전체 삭제
-app.delete('/deleteAll/comments/:post_id', async(req, res, next) => {
-	try{
-		console.log("들어옴");
-		var {db} = req.locals;
-
-		var {post_id} = req.params;
-		console.log(post_id);
-
-		var result = await db.query(`DELETE FROM comments WHERE post_id=${post_id}`);
-
-		db.end();
-
-		return res.status(200).json({
-			status: true,
-			result: result
-		});
-	}
-	catch(err){
-		db.end();
-
-		return res.status(500).json({
-			status: false,
-			error: err
-		});
-	}
-});
 
 // 포스트 업데이트 하기
 
@@ -268,94 +320,6 @@ app.put('/posts/:post_id', updateValidator, runValidator(), async(req, res, next
 
 	}
 });
-
-// 댓글 입력
-var commentValidator = [
-	check('content').not().isEmpty().withMessage('값이 비었다'),
-	check('content').isLength({ min: 1, max: 100 })
-];
-
-app.post('/comments', commentValidator, runValidator(), async(req, res, next) => {
-
-	var { db, result } = req.locals;
-
-	try {
-
-		var { post_id, group_number, group_order, parent_id, depth, content } = req.body;
-
-		await db.beginTransaction();
-
-		// group_number
-		var grp_num = await db.query(`SELECT MAX(group_number) + 1 AS max_no FROM comments_test WHERE parent_id = ${parent_id}`);
-
-		if(group_number === null) {
-			group_number = grp_num[0].max_no
-		}
-
-		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_number = ${group_number} AND group_order >= ${group_order}`);
-
-		await db.query("INSERT INTO comments_test SET ?", {
-			post_id: post_id,
-			group_number: group_number,
-			group_order: group_order,
-			depth: depth,
-			parent_id: parent_id,
-			content : content
-		});	
-
-		await db.commit();
-	}
-
-	catch(err) {
-		await db.rollback();
-	}
-
-	db.end();
-	return res.json(result);
-
-});
-
-// 대댓글 입력
-// var commentValidator = [
-// 	check('content').not().isEmpty().withMessage('값이 비었다'),
-// 	check('content').isLength({ min: 1, max: 100 })
-// ];
-
-// app.post('/reComments', commentValidator, runValidator(), async(req, res, next) => {
-
-// 	try {
-
-// 		var {db} = req.locals;
-
-// 		var { post_id, content, depth, seq } = req.body;
-// 		console.log(req.body);
-// 		var result = await db.query("INSERT INTO comments SET ?", {
-// 			post_id: post_id,
-// 			content : content,
-// 			write_time : parseInt(new Date().getTime() / 1000),
-// 			depth: depth + 1,
-// 			parent: depth,
-// 			seq: seq
-// 		});
-
-// 		db.end();
-
-// 		return res.status(200).json({
-// 			status : true,
-// 			result : result
-// 		});		
-// 	}
-
-// 	catch(err) {
-		
-// 		db.end();
-
-// 		return res.status(500).json({
-// 			status : false,
-// 			error: err
-// 		});
-// 	}
-// });
 
 //upvote
 app.put('/upvote/:post_id', async(req, res, next) => {
