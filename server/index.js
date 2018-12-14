@@ -107,11 +107,11 @@ var commentValidator = [
 
 app.post('/comments', commentValidator, runValidator(), async (req, res, next) => {
 
-	var { db, result } = req.locals;
+	var { db } = req.locals;
 
 	try {
 
-		var { post_id, group_number, group_order, parent_id, depth, content } = req.body;
+		var { post_id, group_number, parent_id, depth, content } = req.body;
 
 		await db.beginTransaction();
 
@@ -121,6 +121,9 @@ app.post('/comments', commentValidator, runValidator(), async (req, res, next) =
 		if (group_number === null) {
 			group_number = grp_num[0].max_no
 		}
+
+		// group_order 구하기
+		var group_order = await db.query(``);
 
 		await db.query(`UPDATE comments_test SET group_order = group_order + 1 WHERE group_number = ${group_number} AND group_order >= ${group_order}`);
 
@@ -141,39 +144,36 @@ app.post('/comments', commentValidator, runValidator(), async (req, res, next) =
 	}
 
 	db.end();
-	return res.json(result);
 
 });
 
 
 //댓글 삭제
 app.post('/comments/:comment_id', async (req, res, next) => {
+	var { db, result } = req.locals;
+
 	try {
-		var { db } = req.locals;
+
+		await db.beginTransaction();
 
 		var { comment_id } = req.params;
 
 		var { group_number, group_order } = req.body;
 
-		var result = await db.query(`DELETE FROM comments_test WHERE idx=${comment_id}`);
+		await db.query(`DELETE FROM comments_test WHERE idx=${comment_id}`);
+
 
 		await db.query(`UPDATE comments_test SET group_order = group_order - 1 WHERE group_number = ${group_number} AND group_order > ${group_order}`);
 
-		db.end();
+		await db.commit();
 
-		return res.status(200).json({
-			status: true,
-			result: result
-		});
 	}
 	catch (err) {
-		db.end();
-
-		return res.status(500).json({
-			status: false,
-			error: err
-		});
+		await db.rollback();
 	}
+	db.end();
+	return res.json(result);
+
 });
 
 //댓글 전체 삭제

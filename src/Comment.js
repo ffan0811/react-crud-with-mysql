@@ -25,7 +25,7 @@ class Comment extends Component{
 		try{
 			axios.post(`http://localhost:4000/comments/${comment_id}`, data)
 				.then(res => {
-					console.log("코멘트 삭제");
+                    console.log(res);
 				})
 		}
 		catch(err) {
@@ -41,9 +41,9 @@ class Comment extends Component{
         let data ={
             post_id: post,
             group_number: this.state.comment.group_number,
-            group_order: this.props.comment.group_order + 1,
+            // group_order: this.props.comment.group_order + 1,
             depth: this.state.comment.depth + 1,
-            parent_id: this.state.comment.parent_id,
+            parent_id: this.state.comment.comment_id,
             content: this.state.defaultReComment,
         }
         console.log(data);
